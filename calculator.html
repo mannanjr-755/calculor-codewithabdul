@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #3B0A0A 0%, #8A2B2B 50%, #F2C9C9 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .calculator {
+      background: rgba(34, 34, 34, 0.7);
+      border-radius: 32px;
+      box-shadow: 0 8px 40px 0 rgba(0,0,0,0.25), 0 1.5px 8px 0 rgba(0,0,0,0.10);
+      padding: 18px 18px 16px 18px;
+      width: 320px;
+      backdrop-filter: blur(16px) saturate(180%);
+      border: 1.5px solid rgba(255,255,255,0.18);
+      transition: box-shadow 0.3s;
+    }
+    .calculator:hover {
+      box-shadow: 0 12px 48px 0 rgba(0,0,0,0.32), 0 2px 12px 0 rgba(0,0,0,0.12);
+    }
+    .display {
+      background: rgba(17, 17, 17, 0.85);
+      color: #fff;
+      font-size: 1.5rem;
+      border-radius: 14px;
+      padding: 10px 12px;
+      text-align: right;
+      margin-bottom: 10px;
+      min-height: 32px;
+      word-break: break-all;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    }
+    .history {
+      background: rgba(51, 51, 51, 0.55);
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      border-radius: 10px;
+      padding: 6px 10px;
+      min-height: 18px;
+      margin-bottom: 8px;
+      text-align: right;
+      max-height: 40px;
+      overflow-y: auto;
+      opacity: 0.92;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 2px;
+    }
+    button {
+      font-size: 1.05rem;
+      padding: 12px 0;
+      border: none;
+      border-radius: 14px;
+      background: rgba(51, 51, 51, 0.85);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+      box-shadow: 0 1.5px 6px rgba(0,0,0,0.08);
+      font-weight: 500;
+    }
+    button:active {
+      background: #444;
+      transform: scale(0.97);
+    }
+    .operator {
+      background: linear-gradient(135deg, #ffb347 0%, #ff9500 100%);
+      color: #fff;
+      font-weight: 600;
+    }
+    .operator:active {
+      background: #e08a00;
+    }
+    .equals {
+      background: linear-gradient(135deg, #5afc8b 0%, #34c759 100%);
+      color: #fff;
+      grid-column: span 2;
+      font-weight: 700;
+    }
+    .equals:active {
+      background: #28a745;
+    }
+    .clear {
+      background: linear-gradient(135deg, #ff7b7b 0%, #ff3b30 100%);
+      color: #fff;
+      font-weight: 600;
+    }
+    .clear:active {
+      background: #c82333;
+    }
+    button:hover {
+      filter: brightness(1.12);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+      transform: translateY(-2px) scale(1.03);
+    }
+    button:focus {
+      outline: 2px solid #ff9500;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="history" id="history"></div>
+    <div class="buttons">
+      <button class="clear" onclick="clearDisplay()">C</button>
+      <button onclick="backspace()">⌫</button>
+      <button onclick="inputValue('(')">(</button>
+      <button onclick="inputValue(')')">)</button>
+      <button class="operator" onclick="inputOperator('/')">÷</button>
+      <button onclick="inputValue('7')">7</button>
+      <button onclick="inputValue('8')">8</button>
+      <button onclick="inputValue('9')">9</button>
+      <button class="operator" onclick="inputOperator('*')">×</button>
+      <button onclick="inputValue('4')">4</button>
+      <button onclick="inputValue('5')">5</button>
+      <button onclick="inputValue('6')">6</button>
+      <button class="operator" onclick="inputOperator('-')">−</button>
+      <button onclick="inputValue('1')">1</button>
+      <button onclick="inputValue('2')">2</button>
+      <button onclick="inputValue('3')">3</button>
+      <button class="operator" onclick="inputOperator('+')">+</button>
+      <button onclick="inputValue('0')">0</button>
+      <button onclick="inputValue('.')">.</button>
+      <button class="equals" onclick="calculate()">=</button>
+    </div>
+  </div>
+  <script>
+    let display = document.getElementById('display');
+    let history = document.getElementById('history');
+    let currentInput = '';
+    let lastInput = '';
+    let calcHistory = [];
+    
+    function updateDisplay() {
+      display.textContent = currentInput || '0';
+    }
+    function updateHistory() {
+      history.innerHTML = calcHistory.slice(-3).map(h => `<div>${h}</div>`).join('');
+    }
+    function inputValue(val) {
+      if (currentInput.length > 20) return; // Prevent overflow
+      if (val === '.' && /[.][^+\-*/()]*$/.test(currentInput)) return; // Prevent multiple decimals in a number
+      currentInput += val;
+      updateDisplay();
+    }
+    function inputOperator(op) {
+      if (currentInput === '' && op !== '-') return;
+      if (/[-+*/]$/.test(currentInput)) {
+        currentInput = currentInput.slice(0, -1) + op;
+      } else {
+        currentInput += op;
+      }
+      updateDisplay();
+    }
+    function clearDisplay() {
+      currentInput = '';
+      updateDisplay();
+    }
+    function backspace() {
+      currentInput = currentInput.slice(0, -1);
+      updateDisplay();
+    }
+    function calculate() {
+      try {
+        if (/[-+*/.]$/.test(currentInput)) {
+          display.textContent = 'Incomplete';
+          return;
+        }
+        let result = eval(currentInput.replace(/÷/g, '/').replace(/×/g, '*'));
+        if (result === undefined || isNaN(result) || !isFinite(result)) {
+          display.textContent = 'Error';
+          currentInput = '';
+          return;
+        }
+        calcHistory.push(`${currentInput} = ${result}`);
+        updateHistory();
+        currentInput = result.toString();
+        updateDisplay();
+      } catch {
+        display.textContent = 'Error';
+        currentInput = '';
+      }
+    }
+    // Keyboard support
+    
+    document.addEventListener('keydown', function(e) {
+      if ((e.key >= '0' && e.key <= '9') || e.key === '.') {
+        inputValue(e.key);
+      } else if (['+', '-', '*', '/'].includes(e.key)) {
+        inputOperator(e.key);
+      } else if (e.key === 'Enter' || e.key === '=') {
+        calculate();
+      } else if (e.key === 'Backspace') {
+        backspace();
+      } else if (e.key === 'c' || e.key === 'C') {
+        clearDisplay();
+      } else if (e.key === '(' || e.key === ')') {
+        inputValue(e.key);
+      }
+    });
+    // Initialize history on load
+    updateHistory();
+  </script>
+</body>
+</html>
