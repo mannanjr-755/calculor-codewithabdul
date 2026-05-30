@@ -5,31 +5,136 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculator</title>
   <style>
+    :root {
+      --page-bg: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #0d0d0d 100%);
+      --calc-bg: #1e1e1e;
+      --calc-border: rgba(255, 255, 255, 0.12);
+      --display-bg: #000000;
+      --display-color: #ffffff;
+      --history-bg: #2a2a2a;
+      --history-color: #cbd5e1;
+      --btn-bg: #333333;
+      --btn-color: #ffffff;
+      --btn-active: #444444;
+      --operator-bg: #f39c12;
+      --operator-active: #d68910;
+      --clear-bg: #e74c3c;
+      --clear-active: #c0392b;
+      --equals-bg: #2ecc71;
+      --equals-active: #27ae60;
+      --focus-ring: #f39c12;
+      --theme-label: #aaaaaa;
+    }
+
+    body.theme-light {
+      --page-bg: linear-gradient(135deg, #e8e8e8 0%, #f5f5f5 50%, #ffffff 100%);
+      --calc-bg: #f0f0f0;
+      --calc-border: rgba(0, 0, 0, 0.08);
+      --display-bg: #dcdcdc;
+      --display-color: #222222;
+      --history-bg: #e8e8e8;
+      --history-color: #555555;
+      --btn-bg: #ffffff;
+      --btn-color: #333333;
+      --btn-active: #e0e0e0;
+      --theme-label: #666666;
+    }
+
+    body.theme-red {
+      --page-bg: linear-gradient(135deg, #3b0a0a 0%, #8a2b2b 50%, #f2c9c9 100%);
+      --calc-bg: #4a0e0e;
+      --calc-border: rgba(255, 255, 255, 0.1);
+      --display-bg: #2a0707;
+      --display-color: #ffffff;
+      --history-bg: #3d1515;
+      --history-color: #e8b4b4;
+      --btn-bg: #3d2b2b;
+      --btn-color: #ffffff;
+      --btn-active: #4d3838;
+      --theme-label: #d4a0a0;
+    }
+
     body {
-      background: linear-gradient(135deg, #3B0A0A 0%, #8A2B2B 50%, #F2C9C9 100%);
+      background: var(--page-bg);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
+      padding: 16px;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: background 0.35s ease;
     }
+
     .calculator {
-      background: rgba(34, 34, 34, 0.7);
+      background: var(--calc-bg);
       border-radius: 32px;
-      box-shadow: 0 8px 40px 0 rgba(0,0,0,0.25), 0 1.5px 8px 0 rgba(0,0,0,0.10);
-      padding: 18px 18px 16px 18px;
-      width: 320px;
-      backdrop-filter: blur(16px) saturate(180%);
-      border: 1.5px solid rgba(255,255,255,0.18);
-      transition: box-shadow 0.3s;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25), 0 1.5px 8px rgba(0, 0, 0, 0.1);
+      padding: 18px 18px 16px;
+      width: min(320px, 100%);
+      border: 1.5px solid var(--calc-border);
+      transition: background 0.35s ease, box-shadow 0.3s;
     }
+
     .calculator:hover {
-      box-shadow: 0 12px 48px 0 rgba(0,0,0,0.32), 0 2px 12px 0 rgba(0,0,0,0.12);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.32), 0 2px 12px rgba(0, 0, 0, 0.12);
     }
+
+    .theme-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .theme-switcher label {
+      font-size: 0.7rem;
+      color: var(--theme-label);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: center;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .theme-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      padding: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .theme-btn:hover {
+      transform: scale(1.08);
+      filter: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .theme-btn.active {
+      border-color: #f39c12;
+      box-shadow: 0 0 0 2px var(--calc-bg), 0 0 0 4px #f39c12;
+    }
+
+    .theme-btn.theme-dark-preview {
+      background: linear-gradient(135deg, #1e1e1e 50%, #333333 50%);
+    }
+
+    .theme-btn.theme-light-preview {
+      background: linear-gradient(135deg, #f0f0f0 50%, #ffffff 50%);
+      border: 1px solid #ccc;
+    }
+
+    .theme-btn.theme-red-preview {
+      background: linear-gradient(135deg, #4a0e0e 50%, #8a2b2b 50%);
+    }
+
     .display {
-      background: rgba(17, 17, 17, 0.85);
-      color: #fff;
+      background: var(--display-bg);
+      color: var(--display-color);
       font-size: 1.5rem;
       border-radius: 14px;
       padding: 10px 12px;
@@ -37,11 +142,13 @@
       margin-bottom: 10px;
       min-height: 32px;
       word-break: break-all;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: background 0.35s ease, color 0.35s ease;
     }
+
     .history {
-      background: rgba(51, 51, 51, 0.55);
-      color: #cbd5e1;
+      background: var(--history-bg);
+      color: var(--history-color);
       font-size: 0.95rem;
       border-radius: 10px;
       padding: 6px 10px;
@@ -50,68 +157,93 @@
       text-align: right;
       max-height: 40px;
       overflow-y: auto;
-      opacity: 0.92;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+      transition: background 0.35s ease, color 0.35s ease;
     }
+
     .buttons {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
       margin-top: 2px;
     }
+
     button {
       font-size: 1.05rem;
       padding: 12px 0;
       border: none;
       border-radius: 14px;
-      background: rgba(51, 51, 51, 0.85);
-      color: #fff;
+      background: var(--btn-bg);
+      color: var(--btn-color);
       cursor: pointer;
-      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-      box-shadow: 0 1.5px 6px rgba(0,0,0,0.08);
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s, color 0.35s ease;
+      box-shadow: 0 1.5px 6px rgba(0, 0, 0, 0.08);
       font-weight: 500;
     }
+
     button:active {
-      background: #444;
+      background: var(--btn-active);
       transform: scale(0.97);
     }
+
     .operator {
-      background: linear-gradient(135deg, #ffb347 0%, #ff9500 100%);
+      background: var(--operator-bg);
       color: #fff;
       font-weight: 600;
     }
+
     .operator:active {
-      background: #e08a00;
+      background: var(--operator-active);
     }
+
     .equals {
-      background: linear-gradient(135deg, #5afc8b 0%, #34c759 100%);
+      background: var(--equals-bg);
       color: #fff;
       grid-column: span 2;
       font-weight: 700;
     }
+
     .equals:active {
-      background: #28a745;
+      background: var(--equals-active);
     }
+
     .clear {
-      background: linear-gradient(135deg, #ff7b7b 0%, #ff3b30 100%);
+      background: var(--clear-bg);
       color: #fff;
       font-weight: 600;
     }
+
     .clear:active {
-      background: #c82333;
+      background: var(--clear-active);
     }
-    button:hover {
+
+    .buttons button:hover {
       filter: brightness(1.12);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
       transform: translateY(-2px) scale(1.03);
     }
-    button:focus {
-      outline: 2px solid #ff9500;
+
+    .buttons button:focus {
+      outline: 2px solid var(--focus-ring);
     }
   </style>
 </head>
-<body>
+<body class="theme-dark">
   <div class="calculator">
+    <div class="theme-switcher" role="group" aria-label="Calculator theme">
+      <div>
+        <label>Themes</label>
+        <button type="button" class="theme-btn theme-dark-preview active" data-theme="dark" title="Dark (Black)" aria-label="Dark theme"></button>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button type="button" class="theme-btn theme-light-preview" data-theme="light" title="Light (White)" aria-label="Light theme"></button>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button type="button" class="theme-btn theme-red-preview" data-theme="red" title="Red" aria-label="Red theme"></button>
+      </div>
+    </div>
     <div class="display" id="display">0</div>
     <div class="history" id="history"></div>
     <div class="buttons">
@@ -211,6 +343,29 @@
         inputValue(e.key);
       }
     });
+    // Theme switcher
+    const THEME_KEY = 'calculator-theme';
+    const themeButtons = document.querySelectorAll('.theme-btn[data-theme]');
+
+    function setTheme(name) {
+      document.body.classList.remove('theme-dark', 'theme-light', 'theme-red');
+      const bodyClass = name === 'light' ? 'theme-light' : name === 'red' ? 'theme-red' : 'theme-dark';
+      document.body.classList.add(bodyClass);
+      themeButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === name);
+      });
+      localStorage.setItem(THEME_KEY, name);
+    }
+
+    themeButtons.forEach(btn => {
+      btn.addEventListener('click', () => setTheme(btn.dataset.theme));
+    });
+
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    if (savedTheme === 'light' || savedTheme === 'red' || savedTheme === 'dark') {
+      setTheme(savedTheme);
+    }
+
     // Initialize history on load
     updateHistory();
   </script>
